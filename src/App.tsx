@@ -1,26 +1,21 @@
 import React from 'react';
-import logo from './logo.svg';
+
+import { Map } from './domains/map';
 import './App.css';
 
 const App: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+  const map = new Map();
+  const mapRef = React.useRef(null);
+  React.useEffect(() => {
+    map.initMap(mapRef.current);
+  });
+
+  const style = {
+    width: '100%',
+    height: '100vh',
+  } as React.CSSProperties;
+
+  return <div ref={mapRef} style={style}></div>;
+};
 
 export default App;
