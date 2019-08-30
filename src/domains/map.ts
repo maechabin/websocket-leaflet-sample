@@ -1,8 +1,17 @@
 import L from 'leaflet';
+import { number } from 'prop-types';
+
+declare module 'leaflet' {
+  interface LeafletEvent {
+    latlng: LatLng;
+  }
+}
 
 export class Map {
+  llmap!: L.Map;
+
   initMap(elem: any) {
-    const mymap = L.map(elem).setView(
+    this.llmap = L.map(elem).setView(
       [35.69432984468491, 139.74267643565133],
       12,
     );
@@ -16,6 +25,10 @@ export class Map {
         id: 'mapbox.streets', // mapbox.streets | mapbox.satellite
         accessToken: 'your.mapbox.access.token',
       },
-    ).addTo(mymap);
+    ).addTo(this.llmap);
+  }
+
+  putMarker(latlng: { lat: number; lng: number }) {
+    const marker1 = L.marker([latlng.lat, latlng.lng]).addTo(this.llmap);
   }
 }

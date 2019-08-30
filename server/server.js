@@ -6,7 +6,7 @@ server.on('connection', ws => {
     console.log('Received: ' + message);
 
     server.clients.forEach(client => {
-      client.send(message + ' : ' + new Date());
+      client.send(message);
     });
   });
 
