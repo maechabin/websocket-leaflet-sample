@@ -1,10 +1,16 @@
 import React from 'react';
 
 import { Map } from './domains/map';
+import { loadPartialConfig } from '@babel/core';
 
 const App: React.FC = () => {
   const map = new Map();
-  const sock = new WebSocket('ws://localhost:5001');
+  // const sock = new WebSocket('ws://localhost:5001');
+  const sock = new WebSocket('wss://connect.websocket.in/maechabin?room_id=1');
+  const listener = new WebSocket(
+    'wss://connect.websocket.in/maechabin?room_id=1',
+  );
+
   const mapRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -31,9 +37,8 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     const id = new Date().getTime();
-    sock.addEventListener('message', (e: MessageEvent) => {
+    listener.addEventListener('message', (e: MessageEvent) => {
       const latlng = JSON.parse(e.data);
-
       if (id > latlng.id) return;
 
       if (map.markers[latlng.id]) {
