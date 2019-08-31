@@ -20,6 +20,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     map.llmap.on('click', (e: L.LeafletEvent) => {
       const latlng = {
+        id: new Date().getTime(),
         lat: e.latlng.lat,
         lng: e.latlng.lng,
       };
@@ -29,8 +30,27 @@ const App: React.FC = () => {
   });
 
   React.useEffect(() => {
+    const id = new Date().getTime();
     sock.addEventListener('message', (e: MessageEvent) => {
-      map.putMarker(JSON.parse(e.data));
+      const latlng = JSON.parse(e.data);
+
+      if (id > latlng.id) return;
+
+      if (map.markers[latlng.id]) {
+        map.moveMarker(latlng);
+      } else {
+        const m = map.putMarker(latlng);
+
+        m.marker.on('drag', (e: L.LeafletEvent) => {
+          const latlng = {
+            id: m.id,
+            lat: e.latlng.lat,
+            lng: e.latlng.lng,
+          };
+          console.log(`lat: ${latlng.lat}, lng: ${latlng.lng}`);
+          sock.send(JSON.stringify(latlng));
+        });
+      }
     });
   });
 

@@ -1,5 +1,4 @@
 import L from 'leaflet';
-import { number } from 'prop-types';
 
 declare module 'leaflet' {
   interface LeafletEvent {
@@ -9,6 +8,9 @@ declare module 'leaflet' {
 
 export class Map {
   llmap!: L.Map;
+  markers: {
+    [id: number]: L.Marker;
+  } = {};
 
   initMap(elem: any) {
     this.llmap = L.map(elem).setView(
@@ -28,7 +30,15 @@ export class Map {
     ).addTo(this.llmap);
   }
 
-  putMarker(latlng: { lat: number; lng: number }) {
-    const marker1 = L.marker([latlng.lat, latlng.lng]).addTo(this.llmap);
+  putMarker(latlng: { id: number; lat: number; lng: number }) {
+    this.markers[latlng.id] = L.marker([latlng.lat, latlng.lng], {
+      draggable: true,
+    }).addTo(this.llmap);
+
+    return { id: latlng.id, marker: this.markers[latlng.id] };
+  }
+
+  moveMarker(latlng: { id: number; lat: number; lng: number }) {
+    this.markers[latlng.id].setLatLng([latlng.lat, latlng.lng]);
   }
 }
