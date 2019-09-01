@@ -1,5 +1,7 @@
 import L from 'leaflet';
 
+import { Marker } from './map.model';
+
 declare module 'leaflet' {
   interface LeafletEvent {
     latlng: LatLng;
@@ -30,15 +32,17 @@ export class Map {
     ).addTo(this.llmap);
   }
 
-  putMarker(latlng: { id: number; lat: number; lng: number }) {
-    this.markers[latlng.id] = L.marker([latlng.lat, latlng.lng], {
+  putMarker(marker: Marker) {
+    this.markers[marker.id] = L.marker([marker.lat, marker.lng], {
       draggable: true,
     }).addTo(this.llmap);
 
-    return { id: latlng.id, marker: this.markers[latlng.id] };
+    return { id: marker.id, marker: this.markers[marker.id] };
   }
 
-  moveMarker(latlng: { id: number; lat: number; lng: number }) {
-    this.markers[latlng.id].setLatLng([latlng.lat, latlng.lng]);
+  moveMarker(marker: Marker) {
+    this.markers[marker.id].setLatLng([marker.lat, marker.lng]);
+  }
+
   }
 }

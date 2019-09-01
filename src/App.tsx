@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Map } from './domains/map';
-import { loadPartialConfig } from '@babel/core';
+import { Marker } from './domains/map.model';
 
 const App: React.FC = () => {
   const map = new Map();
@@ -25,35 +25,40 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     map.llmap.on('click', (e: L.LeafletEvent) => {
-      const latlng = {
+      const marker: Marker = {
         id: new Date().getTime(),
         lat: e.latlng.lat,
         lng: e.latlng.lng,
       };
-      console.log(`lat: ${latlng.lat}, lng: ${latlng.lng}`);
-      sock.send(JSON.stringify(latlng));
+      console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+      sock.send(JSON.stringify(marker));
     });
   });
 
   React.useEffect(() => {
     const id = new Date().getTime();
     listener.addEventListener('message', (e: MessageEvent) => {
-      const latlng = JSON.parse(e.data);
-      if (id > latlng.id) return;
+      const sendedMarker = JSON.parse(e.data);
+      if (id > sendedMarker.id) return;
 
-      if (map.markers[latlng.id]) {
-        map.moveMarker(latlng);
+      if (sendedMarker.task === 'remove') {
+        map.removeMarker(sendedMarker);
+      }
+
+      if (map.markers[sendedMarker.id]) {
+        map.moveMarker(sendedMarker);
       } else {
-        const m = map.putMarker(latlng);
+        const m = map.putMarker(sendedMarker);
 
         m.marker.on('drag', (e: L.LeafletEvent) => {
-          const latlng = {
+          const marker: Marker = {
             id: m.id,
             lat: e.latlng.lat,
             lng: e.latlng.lng,
           };
-          console.log(`lat: ${latlng.lat}, lng: ${latlng.lng}`);
-          sock.send(JSON.stringify(latlng));
+          console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+          sock.send(JSON.stringify(marker));
+        });
         });
       }
     });
