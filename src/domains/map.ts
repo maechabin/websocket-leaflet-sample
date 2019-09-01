@@ -44,5 +44,9 @@ export class Map {
     this.markers[marker.id].setLatLng([marker.lat, marker.lng]);
   }
 
+  removeMarker(marker: Marker) {
+    this.llmap.removeLayer(this.markers[marker.id]);
+  }
+
   }
 }

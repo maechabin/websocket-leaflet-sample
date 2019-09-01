@@ -29,6 +29,7 @@ const App: React.FC = () => {
         id: new Date().getTime(),
         lat: e.latlng.lat,
         lng: e.latlng.lng,
+        task: 'put',
       };
       console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
       sock.send(JSON.stringify(marker));
@@ -55,10 +56,20 @@ const App: React.FC = () => {
             id: m.id,
             lat: e.latlng.lat,
             lng: e.latlng.lng,
+            task: 'move',
           };
           console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
           sock.send(JSON.stringify(marker));
         });
+
+        m.marker.on('click', (e: L.LeafletEvent) => {
+          const marker: Marker = {
+            id: m.id,
+            lat: e.latlng.lat,
+            lng: e.latlng.lng,
+            task: 'remove',
+          };
+          sock.send(JSON.stringify(marker));
         });
       }
     });
