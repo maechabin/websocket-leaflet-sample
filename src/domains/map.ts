@@ -48,5 +48,15 @@ export class Map {
     this.llmap.removeLayer(this.markers[marker.id]);
   }
 
+  getCurrentPosition() {
+    this.llmap.locate({
+      watch: true,
+      enableHighAccuracy: true,
+    });
+    this.llmap.on('locationfound', (data: L.LeafletEvent) => {
+      console.log(
+        `現在地を取得しました: ${data.latlng.lat}, ${data.latlng.lng}`,
+      );
+    });
   }
 }
