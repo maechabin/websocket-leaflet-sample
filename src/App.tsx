@@ -31,7 +31,7 @@ const App: React.FC = () => {
         lng: e.latlng.lng,
         task: 'put',
       };
-      console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+      // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
       sock.send(JSON.stringify(marker));
     });
   });
@@ -44,6 +44,7 @@ const App: React.FC = () => {
 
       if (sendedMarker.task === 'remove') {
         map.removeMarker(sendedMarker);
+        return;
       }
 
       if (map.markers[sendedMarker.id]) {
@@ -58,7 +59,7 @@ const App: React.FC = () => {
             lng: e.latlng.lng,
             task: 'move',
           };
-          console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+          // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
           sock.send(JSON.stringify(marker));
         });
 
