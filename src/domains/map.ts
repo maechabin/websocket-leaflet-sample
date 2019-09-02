@@ -32,7 +32,7 @@ export class Map {
     ).addTo(this.llmap);
   }
 
-  putMarker(marker: Marker) {
+  putMarker(marker: Marker): { id: number; marker: L.Marker } {
     this.markers[marker.id] = L.marker([marker.lat, marker.lng], {
       draggable: true,
     }).addTo(this.llmap);

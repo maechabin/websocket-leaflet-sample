@@ -4,6 +4,7 @@ import { Map } from './domains/map';
 import { Marker } from './domains/map.model';
 
 const App: React.FC = () => {
+  const token = new Date().getTime();
   const map = new Map();
   // const sock = new WebSocket('ws://localhost:5001');
   const sock = new WebSocket('wss://connect.websocket.in/maechabin?room_id=1');
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     map.llmap.on('click', (e: L.LeafletEvent) => {
       const marker: Marker = {
+        token,
         id: new Date().getTime(),
         lat: e.latlng.lat,
         lng: e.latlng.lng,
@@ -37,10 +39,9 @@ const App: React.FC = () => {
   });
 
   React.useEffect(() => {
-    const id = new Date().getTime();
     listener.addEventListener('message', (e: MessageEvent) => {
       const sendedMarker = JSON.parse(e.data);
-      if (id > sendedMarker.id) return;
+      if (token > sendedMarker.id) return;
 
       switch (sendedMarker.task) {
         case 'put':
@@ -51,18 +52,20 @@ const App: React.FC = () => {
             clearTimeout(timer);
             timer = setTimeout(function() {
               const marker: Marker = {
+                token,
                 id: m.id,
                 lat: e.latlng.lat,
                 lng: e.latlng.lng,
                 task: 'move',
               };
-              console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+              // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
               sock.send(JSON.stringify(marker));
             }, 16);
           });
 
           m.marker.on('click', (e: L.LeafletEvent) => {
             const marker: Marker = {
+              token,
               id: m.id,
               lat: e.latlng.lat,
               lng: e.latlng.lng,
@@ -72,7 +75,9 @@ const App: React.FC = () => {
           });
           break;
         case 'move':
-          map.moveMarker(sendedMarker);
+          if (sendedMarker.token !== token) {
+            map.moveMarker(sendedMarker);
+          }
           break;
         case 'remove':
           map.removeMarker(sendedMarker);
