@@ -42,36 +42,41 @@ const App: React.FC = () => {
       const sendedMarker = JSON.parse(e.data);
       if (id > sendedMarker.id) return;
 
-      if (sendedMarker.task === 'remove') {
-        map.removeMarker(sendedMarker);
-        return;
-      }
+      switch (sendedMarker.task) {
+        case 'put':
+          const m = map.putMarker(sendedMarker);
+          let timer: any;
 
-      if (map.markers[sendedMarker.id]) {
-        map.moveMarker(sendedMarker);
-      } else {
-        const m = map.putMarker(sendedMarker);
+          m.marker.on('drag', (e: L.LeafletEvent) => {
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+              const marker: Marker = {
+                id: m.id,
+                lat: e.latlng.lat,
+                lng: e.latlng.lng,
+                task: 'move',
+              };
+              console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+              sock.send(JSON.stringify(marker));
+            }, 16);
+          });
 
-        m.marker.on('drag', (e: L.LeafletEvent) => {
-          const marker: Marker = {
-            id: m.id,
-            lat: e.latlng.lat,
-            lng: e.latlng.lng,
-            task: 'move',
-          };
-          // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
-          sock.send(JSON.stringify(marker));
-        });
-
-        m.marker.on('click', (e: L.LeafletEvent) => {
-          const marker: Marker = {
-            id: m.id,
-            lat: e.latlng.lat,
-            lng: e.latlng.lng,
-            task: 'remove',
-          };
-          sock.send(JSON.stringify(marker));
-        });
+          m.marker.on('click', (e: L.LeafletEvent) => {
+            const marker: Marker = {
+              id: m.id,
+              lat: e.latlng.lat,
+              lng: e.latlng.lng,
+              task: 'remove',
+            };
+            sock.send(JSON.stringify(marker));
+          });
+          break;
+        case 'move':
+          map.moveMarker(sendedMarker);
+          break;
+        case 'remove':
+          map.removeMarker(sendedMarker);
+          break;
       }
     });
   });
