@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Map } from './domains/map';
-import { Marker } from './domains/map.model';
+import { Map, Marker } from './domains';
 
 const App: React.FC = () => {
   const token = new Date().getTime();
