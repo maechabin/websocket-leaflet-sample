@@ -10,6 +10,11 @@ const App: React.FC = () => {
   const listener = new WebSocket(
     'wss://connect.websocket.in/maechabin?room_id=1',
   );
+  function getColorCode() {
+    const color = ((Math.random() * 0xffffff) | 0).toString(16);
+    return `#${('000000' + color).slice(-6)}`;
+  }
+  const color = getColorCode();
 
   const mapRef = React.useRef(null);
 
@@ -27,6 +32,7 @@ const App: React.FC = () => {
     map.llmap.on('click', (e: L.LeafletEvent) => {
       const marker: Marker = {
         token,
+        color,
         id: new Date().getTime(),
         lat: e.latlng.lat,
         lng: e.latlng.lng,
@@ -52,6 +58,7 @@ const App: React.FC = () => {
             timer = setTimeout(function() {
               const marker: Marker = {
                 token,
+                color,
                 id: m.id,
                 lat: e.latlng.lat,
                 lng: e.latlng.lng,
@@ -65,6 +72,7 @@ const App: React.FC = () => {
           m.marker.on('click', (e: L.LeafletEvent) => {
             const marker: Marker = {
               token,
+              color,
               id: m.id,
               lat: e.latlng.lat,
               lng: e.latlng.lng,
