@@ -33,25 +33,31 @@ export class Map {
   }
 
   putMarker(marker: Marker): { id: number; marker: L.Marker } {
-    const markerHtmlStyles = `
-      background-color: ${marker.color};
-      width: 1.6rem;
-      height: 1.6rem;
-      display: block;
-      left: -0.8rem;
-      top: -0.8rem;
-      position: relative;
-      border-radius: 3rem 3rem 0;
-      transform: rotate(45deg);
-      border: 1px solid #444;
-      opacity: 0.8;
+    /** Icon */
+    const markerHtmlStyles1 = `
+      position: absolute;
+      left: -12px;
+      top: -12px;
+      border-radius: 50%;
+      border: 8px solid ${marker.color};
+      width: 8px;
+      height: 8px;
     `;
-
+    const markerHtmlStyles2 = `
+      position: absolute;
+      bottom: -30px;
+      left: -6px;
+      border: 10px solid transparent;
+      border-top: 17px solid ${marker.color};
+    `;
     const icon = L.divIcon({
-      className: 'my-custom-pin',
+      className: 'marker-icon',
       iconAnchor: [0, 24],
       popupAnchor: [0, -36],
-      html: `<span style="${markerHtmlStyles}" />`,
+      html: `
+        <span style="${markerHtmlStyles1}" />
+        <span style="${markerHtmlStyles2}" />
+      `,
     });
 
     this.markers[marker.id] = L.marker([marker.lat, marker.lng], {
