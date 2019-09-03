@@ -6,10 +6,8 @@ const App: React.FC = () => {
   const token = new Date().getTime();
   const map = new Map();
   // const sock = new WebSocket('ws://localhost:5001');
-  const sock = new WebSocket('wss://connect.websocket.in/maechabin?room_id=1');
-  const listener = new WebSocket(
-    'wss://connect.websocket.in/maechabin?room_id=1',
-  );
+  const sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}`);
+  const listener = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}`);
   function getColorCode() {
     const color = ((Math.random() * 0xffffff) | 0).toString(16);
     return `#${('000000' + color).slice(-6)}`;
