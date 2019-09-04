@@ -13,6 +13,7 @@ export class Map {
   markers: {
     [id: number]: L.Marker;
   } = {};
+  currentLatLng!: L.Marker;
 
   initMap(elem: any) {
     /** Layer */
@@ -94,15 +95,42 @@ export class Map {
     this.llmap.removeLayer(this.markers[marker.id]);
   }
 
-  getCurrentPosition() {
+  getCurrentPosition(color: string, shadowColor: string) {
     this.llmap.locate({
       watch: true,
       enableHighAccuracy: true,
     });
     this.llmap.on('locationfound', (data: L.LeafletEvent) => {
+      const markerHtmlStyles = `
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: 7px;
+      left: 7px;
+      box-shadow: 0 0 0 8px ${shadowColor};
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background-color: ${color};
+    `;
+      const icon = L.divIcon({
+        className: 'marker-icon',
+        iconAnchor: [0, 24],
+        popupAnchor: [0, -36],
+        html: `
+        <span style="${markerHtmlStyles}" />
+      `,
+      });
       console.log(
         `現在地を取得しました: ${data.latlng.lat}, ${data.latlng.lng}`,
       );
+
+      if (this.currentLatLng) {
+        this.llmap.removeLayer(this.currentLatLng);
+      }
+      this.currentLatLng = L.marker([data.latlng.lat, data.latlng.lng], {
+        icon,
+        draggable: false,
+      }).addTo(this.llmap);
     });
   }
 }
