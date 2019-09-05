@@ -14,6 +14,7 @@ export class Map {
     [id: number]: L.Marker;
   } = {};
   location!: L.Marker;
+  locationList: { [token: number]: Marker } = {};
 
   initMap(elem: any) {
     /** Layer */
@@ -96,10 +97,12 @@ export class Map {
   }
 
   getLocation() {
-    this.llmap.locate({
-      watch: true,
-      enableHighAccuracy: true,
-    });
+    if (this.llmap && this.llmap.locate) {
+      this.llmap.locate({
+        watch: true,
+        enableHighAccuracy: true,
+      });
+    }
   }
 
   putLocationMarker(marker: Marker) {
