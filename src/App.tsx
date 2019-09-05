@@ -89,7 +89,10 @@ const App: React.FC = () => {
           map.removeMarker(sendedMarker);
           break;
         case 'location':
-          if (!map.location && sendedMarker.token === token) {
+          if (
+            !map.locations[sendedMarker.token] &&
+            sendedMarker.token === token
+          ) {
             map.panTo(sendedMarker.lat, sendedMarker.lng);
           }
 

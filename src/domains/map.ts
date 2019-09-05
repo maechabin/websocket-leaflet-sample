@@ -13,7 +13,7 @@ export class Map {
   markers: {
     [id: number]: L.Marker;
   } = {};
-  location!: L.Marker;
+  locations: { [token: number]: L.Marker } = {};
   locationList: { [token: number]: Marker } = {};
 
   initMap(elem: any) {
@@ -126,10 +126,10 @@ export class Map {
       `,
     });
 
-    if (this.location) {
-      this.llmap.removeLayer(this.location);
+    if (this.locations[marker.token]) {
+      this.llmap.removeLayer(this.locations[marker.token]);
     }
-    this.location = L.marker([marker.lat, marker.lng], {
+    this.locations[marker.token] = L.marker([marker.lat, marker.lng], {
       icon,
       draggable: false,
     })
