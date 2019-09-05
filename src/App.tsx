@@ -17,7 +17,7 @@ const App: React.FC = () => {
     const b = Math.round(Math.random() * 255);
     return [`rgba(${r},${g},${b},1)`, `rgba(${r},${g},${b},0.4)`];
   }
-  const [color, shadowColor] = getColorCode();
+  const color = getColorCode();
 
   const mapRef = React.useRef(null);
 
@@ -92,6 +92,11 @@ const App: React.FC = () => {
         case 'remove':
           map.removeMarker(sendedMarker);
           break;
+        case 'location':
+          if (!map.location && sendedMarker.token === token) {
+            map.panTo(sendedMarker.lat, sendedMarker.lng);
+          }
+          map.putLocationMarker(sendedMarker);
       }
     });
   });
@@ -105,24 +110,45 @@ const App: React.FC = () => {
 
   const button = {
     position: 'absolute',
-    left: 'calc(50% - 80px)',
+    left: 'calc(50% - 65px)',
+    top: '10px',
     zIndex: 1000,
-    width: '160px',
+    width: '128px',
     lineHeight: '32px',
+    border: '1px solid #999',
+    borderRadius: '4px',
+    backgroundColor: '#fff',
     cursor: 'pointer',
   } as React.CSSProperties;
 
   function handleClick() {
-    map.getCurrentPosition(color, shadowColor);
+    map.getLocation();
   }
 
+  React.useEffect(() => {
+    map.llmap.on('locationfound', (e: L.LeafletEvent) => {
+      console.log(`現在地を取得しました: ${e.latlng.lat}, ${e.latlng.lng}`);
+
+      const marker: Marker = {
+        token,
+        color,
+        id: new Date().getTime(),
+        lat: e.latlng.lat,
+        lng: e.latlng.lng,
+        task: 'location',
+      };
+      // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+      sock.send(JSON.stringify(marker));
+    });
+  });
+
   return (
-    <div>
+    <>
       <div ref={mapRef} style={style}></div>
       <button onClick={() => handleClick()} style={button}>
-        現在地を取得する
+        現在地を共有する
       </button>
-    </div>
+    </>
   );
 };
 

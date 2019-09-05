@@ -13,7 +13,7 @@ export class Map {
   markers: {
     [id: number]: L.Marker;
   } = {};
-  currentLatLng!: L.Marker;
+  location!: L.Marker;
 
   initMap(elem: any) {
     /** Layer */
@@ -58,7 +58,7 @@ export class Map {
       left: -12px;
       top: -12px;
       border-radius: 50%;
-      border: 8px solid ${marker.color};
+      border: 8px solid ${marker.color[0]};
       width: 8px;
       height: 8px;
     `;
@@ -67,7 +67,7 @@ export class Map {
       bottom: -30px;
       left: -6px;
       border: 10px solid transparent;
-      border-top: 17px solid ${marker.color};
+      border-top: 17px solid ${marker.color[0]};
     `;
     const icon = L.divIcon({
       className: 'marker-icon',
@@ -95,42 +95,48 @@ export class Map {
     this.llmap.removeLayer(this.markers[marker.id]);
   }
 
-  getCurrentPosition(color: string, shadowColor: string) {
+  getLocation() {
     this.llmap.locate({
       watch: true,
       enableHighAccuracy: true,
     });
-    this.llmap.on('locationfound', (data: L.LeafletEvent) => {
-      const markerHtmlStyles = `
+  }
+
+  putLocationMarker(marker: Marker) {
+    const markerHtmlStyles = `
       position: absolute;
       width: 10px;
       height: 10px;
       top: 7px;
       left: 7px;
-      box-shadow: 0 0 0 8px ${shadowColor};
+      box-shadow: 0 0 0 8px ${marker.color[1]};
       border-radius: 50%;
       border: 2px solid #fff;
-      background-color: ${color};
+      background-color: ${marker.color[0]};
     `;
-      const icon = L.divIcon({
-        className: 'marker-icon',
-        iconAnchor: [0, 24],
-        popupAnchor: [0, -36],
-        html: `
+    const icon = L.divIcon({
+      className: 'marker-icon',
+      iconAnchor: [0, 24],
+      popupAnchor: [0, -36],
+      html: `
         <span style="${markerHtmlStyles}" />
       `,
-      });
-      console.log(
-        `現在地を取得しました: ${data.latlng.lat}, ${data.latlng.lng}`,
-      );
-
-      if (this.currentLatLng) {
-        this.llmap.removeLayer(this.currentLatLng);
-      }
-      this.currentLatLng = L.marker([data.latlng.lat, data.latlng.lng], {
-        icon,
-        draggable: false,
-      }).addTo(this.llmap);
     });
+
+    if (this.location) {
+      this.llmap.removeLayer(this.location);
+    }
+    this.location = L.marker([marker.lat, marker.lng], {
+      icon,
+      draggable: false,
+    })
+      .addTo(this.llmap)
+      .on('click', () => {
+        this.panTo(marker.lat, marker.lng);
+      });
+  }
+
+  panTo(lat: number, lng: number) {
+    this.llmap.panTo(new L.LatLng(lat, lng));
   }
 }
