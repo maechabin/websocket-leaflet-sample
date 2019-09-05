@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { Map, Marker } from './domains';
+import { style } from './style';
+import * as helper from './helper';
 
 const App: React.FC = () => {
   const token = new Date().getTime();
@@ -9,14 +11,6 @@ const App: React.FC = () => {
   const sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}`);
   const listener = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}`);
 
-  function getColorCode() {
-    // const color = ((Math.random() * 0xffffff) | 0).toString(16);
-    // return `#${('000000' + color).slice(-6)}`;
-    const r = Math.round(Math.random() * 255);
-    const g = Math.round(Math.random() * 255);
-    const b = Math.round(Math.random() * 255);
-    return [`rgba(${r},${g},${b},1)`, `rgba(${r},${g},${b},0.4)`];
-  }
   const color = getColorCode();
 
   const mapRef = React.useRef(null);
@@ -101,25 +95,6 @@ const App: React.FC = () => {
     });
   });
 
-  const style = {
-    position: 'absolute',
-    width: '100%',
-    height: '100vh',
-    zIndex: 0,
-  } as React.CSSProperties;
-
-  const button = {
-    position: 'absolute',
-    left: 'calc(50% - 65px)',
-    top: '10px',
-    zIndex: 1000,
-    width: '128px',
-    lineHeight: '32px',
-    border: '1px solid #999',
-    borderRadius: '4px',
-    backgroundColor: '#fff',
-    cursor: 'pointer',
-  } as React.CSSProperties;
 
   function handleClick() {
     map.getLocation();
@@ -141,11 +116,14 @@ const App: React.FC = () => {
       sock.send(JSON.stringify(marker));
     });
   });
+  const mapStyle = style.map;
+  const buttonStyle = style.button;
+  const ulStyle = style.ul;
 
   return (
     <>
-      <div ref={mapRef} style={style}></div>
       <button onClick={() => handleClick()} style={button}>
+      <div ref={mapRef} style={mapStyle}></div>
         現在地を共有する
       </button>
     </>
