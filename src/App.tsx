@@ -9,9 +9,10 @@ const App: React.FC = () => {
   const room = helper.getParam('room');
   const sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}${room}`);
   const listener = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}${room}`);
-  const token = new Date().getTime();
-  const color = helper.getColorCode();
 
+  const [color] = React.useState(helper.getColorCode());
+  const [token] = React.useState(new Date().getTime());
+  const [isSharing, setIsSharing] = React.useState<boolean>(false);
   const [map] = React.useState(new Map());
   const [markers, setMarkers] = React.useState<{ [token: number]: Marker }>({});
 
@@ -20,6 +21,16 @@ const App: React.FC = () => {
   React.useEffect(() => {
     sock.addEventListener('open', e => {
       console.log('Socket 接続成功');
+    });
+  }, []);
+
+  React.useEffect(() => {
+    sock.addEventListener('error', e => {
+      console.error(e);
+    });
+
+    listener.addEventListener('error', e => {
+      console.error(e);
     });
   }, []);
 
@@ -110,10 +121,6 @@ const App: React.FC = () => {
     });
   }, []);
 
-  function handleClick() {
-    map.getLocation();
-  }
-
   React.useEffect(() => {
     map.llmap.on('locationfound', (e: L.LeafletEvent) => {
       console.log(`現在地を取得しました: ${e.latlng.lat}, ${e.latlng.lng}`);
@@ -135,6 +142,32 @@ const App: React.FC = () => {
   const buttonStyle = style.button;
   const ulStyle = style.ul;
 
+  function handleClick() {
+    if (isSharing) {
+      map.stopGetLocation();
+      map.removeLacateMarker(token);
+      delete map.locationList[token];
+      setMarkers(map.locationList);
+    } else {
+      map.getLocation();
+    }
+    setIsSharing(!isSharing);
+  }
+
+  const locateButton = () => {
+    const button = isSharing ? (
+      <button onClick={() => handleClick()} style={buttonStyle}>
+        現在地の共有を停止する
+      </button>
+    ) : (
+      <button onClick={() => handleClick()} style={buttonStyle}>
+        現在地の共有を開始する
+      </button>
+    );
+
+    return button;
+  };
+
   const markerList = () => {
     if (Object.values(markers).length !== 0) {
       const list = Object.values(markers).map((marker: Marker) => {
@@ -148,9 +181,7 @@ const App: React.FC = () => {
   return (
     <>
       <div ref={mapRef} style={mapStyle}></div>
-      <button onClick={() => handleClick()} style={buttonStyle}>
-        現在地を共有する
-      </button>
+      {locateButton()}
       {markerList()}
     </>
   );

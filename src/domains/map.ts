@@ -105,6 +105,14 @@ export class Map {
     }
   }
 
+  stopGetLocation() {
+    this.llmap.stopLocate();
+  }
+
+  removeLacateMarker(token: number) {
+    this.llmap.removeLayer(this.locations[token]);
+  }
+
   putLocationMarker(marker: Marker) {
     const markerHtmlStyles = `
       position: absolute;
