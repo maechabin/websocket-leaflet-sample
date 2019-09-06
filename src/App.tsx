@@ -4,6 +4,12 @@ import { Map, Marker } from './domains';
 import { style } from './style';
 import * as helper from './helper';
 
+interface State {
+  markers: { [token: number]: Marker };
+  isSharing: boolean;
+  isDisabled: boolean;
+}
+
 const App: React.FC = () => {
   // const sock = new WebSocket('ws://localhost:5001');
   const room = helper.getParam('room');
@@ -12,9 +18,27 @@ const App: React.FC = () => {
 
   const [color] = React.useState(helper.getColorCode());
   const [token] = React.useState(new Date().getTime());
-  const [isSharing, setIsSharing] = React.useState<boolean>(false);
   const [map] = React.useState(new Map());
-  const [markers, setMarkers] = React.useState<{ [token: number]: Marker }>({});
+  const initialState = {
+    markers: {},
+    isSharing: false,
+    isDisabled: false,
+  };
+  function reducer(state: State, action: any): any {
+    switch (action.type) {
+      case 'updateMarkers':
+        return {
+          ...state,
+          markers: action.payload,
+        };
+      case 'updateIsSharing':
+        return {
+          ...state,
+          isSharing: action.payload,
+        };
+    }
+  }
+  const [state, dispatch] = React.useReducer(reducer, initialState);
 
   const mapRef = React.useRef(null);
 
@@ -112,11 +136,19 @@ const App: React.FC = () => {
               ...map.locationList,
               [sendedMarker.token]: sendedMarker,
             };
-
-            setMarkers(map.locationList);
           }
+          dispatch({ type: 'updateMarkers', payload: map.locationList });
 
           map.putLocationMarker(sendedMarker);
+          // setIsSharing(!isSharing);
+          break;
+        case 'removeLocation':
+          delete map.locationList[sendedMarker.token];
+          dispatch({ type: 'updateMarkers', payload: map.locationList });
+
+          map.removeLacateMarker(sendedMarker.token);
+          // setIsSharing(!isSharing);
+          break;
       }
     });
   }, []);
@@ -143,19 +175,30 @@ const App: React.FC = () => {
   const ulStyle = style.ul;
 
   function handleClick() {
-    if (isSharing) {
+    if (state.isSharing) {
       map.stopGetLocation();
-      map.removeLacateMarker(token);
-      delete map.locationList[token];
-      setMarkers(map.locationList);
+      const marker: Marker = {
+        token,
+        color,
+        id: new Date().getTime(),
+        lat: NaN,
+        lng: NaN,
+        task: 'removeLocation',
+      };
+      sock.send(JSON.stringify(marker));
+      dispatch({ type: 'updateIsSharing', payload: !state.isSharing });
+
+      // setIsSharing(!state.isSharing);
     } else {
       map.getLocation();
+      dispatch({ type: 'updateIsSharing', payload: !state.isSharing });
+
+      // setIsSharing(!state.isSharing);
     }
-    setIsSharing(!isSharing);
   }
 
   const locateButton = () => {
-    const button = isSharing ? (
+    const button = state.isSharing ? (
       <button onClick={() => handleClick()} style={buttonStyle}>
         現在地の共有を停止する
       </button>
@@ -169,8 +212,8 @@ const App: React.FC = () => {
   };
 
   const markerList = () => {
-    if (Object.values(markers).length !== 0) {
-      const list = Object.values(markers).map((marker: Marker) => {
+    if (Object.values(state.markers).length !== 0) {
+      const list = Object.values(state.markers).map((marker: any) => {
         return <MarkerList map={map} marker={marker} key={marker.token} />;
       });
 
