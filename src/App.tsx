@@ -6,9 +6,9 @@ import * as helper from './helper';
 
 const App: React.FC = () => {
   // const sock = new WebSocket('ws://localhost:5001');
-  const sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}`);
-  const listener = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}`);
-
+  const room = helper.getParam('room');
+  const sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}${room}`);
+  const listener = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}${room}`);
   const token = new Date().getTime();
   const color = helper.getColorCode();
 

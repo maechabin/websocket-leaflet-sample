@@ -6,3 +6,10 @@ export function getColorCode() {
   const b = Math.round(Math.random() * 255);
   return [`rgba(${r},${g},${b},1)`, `rgba(${r},${g},${b},0.4)`];
 }
+
+export function getParam(param: string) {
+  const query = window.location.search;
+  const regexp = new RegExp('[\\?&]' + param + '=([^&#]*)', 'i');
+  const val = query.match(regexp);
+  return val ? val[1] : 1;
+}
