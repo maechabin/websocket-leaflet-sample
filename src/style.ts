@@ -10,7 +10,7 @@ export const style = {
     left: 'calc(50% - 65px)',
     top: '10px',
     zIndex: 1000,
-    width: '144px',
+    width: '160px',
     lineHeight: '32px',
     border: '1px solid #999',
     borderRadius: '4px',
