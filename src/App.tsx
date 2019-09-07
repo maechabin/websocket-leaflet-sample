@@ -3,6 +3,7 @@ import React from 'react';
 import { Map, Marker } from './domains';
 import { style } from './style';
 import * as helper from './helper';
+import { WSAEACCES, WSAEWOULDBLOCK } from 'constants';
 
 interface State {
   markers: { [token: number]: Marker };
@@ -12,6 +13,7 @@ interface State {
 
 const App: React.FC = () => {
   // const sock = new WebSocket('ws://localhost:5001');
+  const mapRef = React.useRef(null);
   const room = helper.getParam('room');
   let sock: WebSocket;
   let listener: WebSocket;
@@ -22,7 +24,7 @@ const App: React.FC = () => {
   const initialState = {
     markers: {},
     isSharing: false,
-    isDisabled: false,
+    isDisabled: true,
   };
 
   function reducer(state: State, action: any): State {
@@ -48,45 +50,20 @@ const App: React.FC = () => {
   }
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  const mapRef = React.useRef(null);
-
-  React.useEffect(() => {
+  function connectToWebSocket() {
     sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}?room_id=${room}`);
     sock.addEventListener('open', e => {
       console.log('Socket 接続成功');
+      dispatch({ type: 'updateIsDisabled', payload: false });
     });
-    sock.addEventListener('error', e => {
-      console.error(e);
-    });
-
     listener = new WebSocket(
       `${process.env.REACT_APP_WEB_SOCKET}?room_id=${room}`,
     );
-    listener.addEventListener('error', e => {
-      console.error(e);
+    listener.addEventListener('open', e => {
+      console.log('Listener 接続成功');
+      dispatch({ type: 'updateIsDisabled', payload: false });
     });
-  }, []);
 
-  React.useEffect(() => {
-    map.initMap(mapRef.current);
-  }, []);
-
-  React.useEffect(() => {
-    map.llmap.on('click', (e: L.LeafletEvent) => {
-      const marker: Marker = {
-        token,
-        color,
-        id: new Date().getTime(),
-        lat: e.latlng.lat,
-        lng: e.latlng.lng,
-        task: 'put',
-      };
-      // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
-      sock.send(JSON.stringify(marker));
-    });
-  }, []);
-
-  React.useEffect(() => {
     listener.addEventListener('message', (e: MessageEvent) => {
       const sendedMarker = JSON.parse(e.data);
       if (token > sendedMarker.id) return;
@@ -108,7 +85,7 @@ const App: React.FC = () => {
                 task: 'move',
               };
               // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
-              sock.send(JSON.stringify(marker));
+              sendDatatoWS(JSON.stringify(marker));
             }, 16);
           });
 
@@ -121,7 +98,7 @@ const App: React.FC = () => {
               lng: e.latlng.lng,
               task: 'remove',
             };
-            sock.send(JSON.stringify(marker));
+            sendDatatoWS(JSON.stringify(marker));
           });
           break;
         case 'move':
@@ -158,7 +135,43 @@ const App: React.FC = () => {
           break;
       }
     });
+  }
+
+  function sendDatatoWS(data: string) {
+    if (sock.readyState === WebSocket.OPEN) {
+      sock.send(data);
+    } else {
+      sock.close();
+      listener.close();
+      console.error('接続切断中');
+      connectToWebSocket();
+    }
+  }
+
+  React.useEffect(() => {
+    connectToWebSocket();
   }, []);
+
+  React.useEffect(() => {
+    map.initMap(mapRef.current);
+  }, []);
+
+  React.useEffect(() => {
+    map.llmap.on('click', (e: L.LeafletEvent) => {
+      const marker: Marker = {
+        token,
+        color,
+        id: new Date().getTime(),
+        lat: e.latlng.lat,
+        lng: e.latlng.lng,
+        task: 'put',
+      };
+      // console.log(`lat: ${marker.lat}, lng: ${marker.lng}`);
+      sendDatatoWS(JSON.stringify(marker));
+    });
+  }, []);
+
+  React.useEffect(() => {}, []);
 
   React.useEffect(() => {
     map.llmap.on('locationfound', (e: L.LeafletEvent) => {
@@ -173,7 +186,7 @@ const App: React.FC = () => {
         lng: e.latlng.lng,
         task: 'location',
       };
-      sock.send(JSON.stringify(marker));
+      sendDatatoWS(JSON.stringify(marker));
     });
 
     map.llmap.on('locationstop', () => {
@@ -185,7 +198,7 @@ const App: React.FC = () => {
         lng: NaN,
         task: 'removeLocation',
       };
-      sock.send(JSON.stringify(marker));
+      sendDatatoWS(JSON.stringify(marker));
     });
 
     map.llmap.on('locationerror', error => {
