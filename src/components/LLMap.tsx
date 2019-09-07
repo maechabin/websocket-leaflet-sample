@@ -13,6 +13,8 @@ function LLMap(props: Props) {
   const { map, dispatch } = props;
   // const sock = new WebSocket('ws://localhost:5001');
   const mapRef = React.useRef(null);
+
+  const channel = helper.getPath();
   const room = helper.getParam('room');
   let sock: WebSocket;
   let listener: WebSocket;
@@ -21,13 +23,15 @@ function LLMap(props: Props) {
   const [token] = React.useState(new Date().getTime());
 
   function connectToWebSocket() {
-    sock = new WebSocket(`${process.env.REACT_APP_WEB_SOCKET}?room_id=${room}`);
+    sock = new WebSocket(
+      `${process.env.REACT_APP_WEB_SOCKET}/${channel}?room_id=${room}`,
+    );
     sock.addEventListener('open', event => {
       console.log('Socket 接続成功');
       dispatch({ type: 'updateIsDisabled', payload: false });
     });
     listener = new WebSocket(
-      `${process.env.REACT_APP_WEB_SOCKET}?room_id=${room}`,
+      `${process.env.REACT_APP_WEB_SOCKET}/${channel}?room_id=${room}`,
     );
     listener.addEventListener('open', event => {
       console.log('Listener 接続成功');

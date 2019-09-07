@@ -7,6 +7,12 @@ export function getColorCode() {
   return [`rgba(${r},${g},${b},1)`, `rgba(${r},${g},${b},0.4)`];
 }
 
+export function getPath() {
+  return (
+    window.location.pathname.split('/')[1] || process.env.REACT_APP_CHANNEL
+  );
+}
+
 export function getParam(param: string) {
   const query = window.location.search;
   const regexp = new RegExp('[\\?&]' + param + '=([^&#]*)', 'i');
