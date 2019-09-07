@@ -3,7 +3,6 @@ import React from 'react';
 import { Map, Marker } from './domains';
 import { style } from './style';
 import * as helper from './helper';
-import { WSAEACCES, WSAEWOULDBLOCK } from 'constants';
 
 interface State {
   markers: { [token: number]: Marker };
