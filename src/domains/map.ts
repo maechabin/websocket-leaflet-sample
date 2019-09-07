@@ -107,6 +107,7 @@ export class Map {
 
   stopGetLocation() {
     this.llmap.stopLocate();
+    this.llmap.fire('locationstop');
   }
 
   removeLacateMarker(token: number) {
