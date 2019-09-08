@@ -1,6 +1,7 @@
-import L from 'leaflet';
+import * as L from 'leaflet';
 
 import { Marker } from './map.model';
+import 'leaflet.gridlayer.googlemutant';
 
 declare module 'leaflet' {
   interface LeafletEvent {
@@ -40,6 +41,10 @@ export class Map {
       },
     );
 
+    const googlemaps = L.gridLayer.googleMutant({
+      type: 'roadmap', // valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+    });
+
     this.llmap = L.map(elem)
       .setView([35.69432984468491, 139.74267643565133], 12)
       .addLayer(streetsLayer);
@@ -48,6 +53,7 @@ export class Map {
       .layers({
         street: streetsLayer,
         satellite: satelliteLayer,
+        'google maps': googlemaps,
       })
       .addTo(this.llmap);
   }
