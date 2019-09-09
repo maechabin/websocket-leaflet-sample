@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Marker } from '../domains/map';
+import { Marker, Markers } from '../domains/map';
 import * as style from '../core/style';
 
 type Props = {
-  markers: { [token: number]: Marker };
+  markers: Markers;
   panTo: (lat: number, lng: number) => void;
 };
 

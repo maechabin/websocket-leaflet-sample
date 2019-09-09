@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Map, Marker } from '../domains/map';
+import { updateIsDisabled, updateMarkers } from '../core/reducer';
 import * as style from '../core/style';
 import * as helper from '../core/helper';
 
@@ -28,14 +29,14 @@ function LLMap(props: Props) {
     );
     sock.addEventListener('open', event => {
       console.log('Socket 接続成功');
-      dispatch({ type: 'updateIsDisabled', payload: false });
+      dispatch(updateIsDisabled(false));
     });
     listener = new WebSocket(
       `${process.env.REACT_APP_WEB_SOCKET}/${channel}?room_id=${room}`,
     );
     listener.addEventListener('open', event => {
       console.log('Listener 接続成功');
-      dispatch({ type: 'updateIsDisabled', payload: false });
+      dispatch(updateIsDisabled(false));
     });
 
     listener.addEventListener('message', (event: MessageEvent) => {
@@ -97,15 +98,15 @@ function LLMap(props: Props) {
               [sendedMarker.token]: sendedMarker,
             };
           }
-          dispatch({ type: 'updateMarkers', payload: map.locationList });
+          dispatch(updateMarkers(map.locationList));
           map.putLocationMarker(sendedMarker);
-          dispatch({ type: 'updateIsDisabled', payload: false });
+          dispatch(updateIsDisabled(false));
           break;
         case 'removeLocation':
           delete map.locationList[sendedMarker.token];
-          dispatch({ type: 'updateMarkers', payload: map.locationList });
+          dispatch(updateMarkers(map.locationList));
           map.removeLacateMarker(sendedMarker.token);
-          dispatch({ type: 'updateIsDisabled', payload: false });
+          dispatch(updateIsDisabled(false));
           break;
       }
     });
@@ -143,7 +144,7 @@ function LLMap(props: Props) {
     });
 
     map.llmap.on('locationfound', (event: L.LeafletEvent) => {
-      dispatch({ type: 'updateIsDisabled', payload: true });
+      dispatch(updateIsDisabled(true));
       console.log(
         `現在地を取得しました: ${event.latlng.lat}, ${event.latlng.lng}`,
       );

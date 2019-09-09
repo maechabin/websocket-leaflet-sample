@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
 
-import { Marker } from './map.model';
+import { Marker, Markers } from './map.model';
 import 'leaflet.gridlayer.googlemutant';
 
 declare module 'leaflet' {
@@ -15,7 +15,7 @@ export class Map {
     [id: number]: L.Marker;
   } = {};
   locations: { [token: number]: L.Marker } = {};
-  locationList: { [token: number]: Marker } = {};
+  locationList: Markers = {};
 
   initMap(elem: any) {
     const token =
@@ -90,8 +90,7 @@ export class Map {
     `;
     const icon = L.divIcon({
       className: 'marker-icon',
-      iconAnchor: [0, 24],
-      popupAnchor: [0, -36],
+      iconAnchor: [0, 0],
       html: `
         <span style="${markerHtmlStyles1}" />
         <span style="${markerHtmlStyles2}" />
