@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Map, Marker } from '../domains/map';
-import { updateIsDisabled } from '../core/reducer';
+import { updateIsDisabled, updateIsSharing } from '../core/reducer';
 import * as style from '../core/style';
 
 type Props = {
@@ -63,7 +63,9 @@ function LLMap(props: Props) {
     });
 
     map.llmap.on('locationerror', error => {
-      console.error(error);
+      console.error(`現在地を取得できませんでした`);
+      dispatch(updateIsSharing(false));
+      dispatch(updateIsDisabled(false));
     });
   }, []);
 
