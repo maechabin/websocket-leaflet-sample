@@ -48,11 +48,14 @@ const Container: React.FC = () => {
     dispatch({ type: 'updateIsDisabled', payload: true });
     if (state.isSharing) {
       map.stopGetLocation();
-      dispatch({ type: 'updateIsSharing', payload: !state.isSharing });
     } else {
       map.getLocation();
-      dispatch({ type: 'updateIsSharing', payload: !state.isSharing });
     }
+    dispatch({ type: 'updateIsSharing', payload: !state.isSharing });
+  }
+
+  function panTo(lat: number, lng: number) {
+    map.panTo(lat, lng);
   }
 
   return (
@@ -63,7 +66,7 @@ const Container: React.FC = () => {
         isSharing={state.isSharing}
         controlLocate={controlLocate}
       />
-      <MarkerList map={map} markers={state.markers} />
+      <MarkerList markers={state.markers} panTo={panTo} />
     </>
   );
 };
