@@ -94,7 +94,7 @@ export class Map {
     `;
     const icon = L.divIcon({
       className: 'marker-icon',
-      iconAnchor: [0, 0],
+      iconAnchor: [0, 24],
       html: `
         <span style="${markerHtmlStyles1}" />
         <span style="${markerHtmlStyles2}" />
@@ -140,8 +140,6 @@ export class Map {
       position: absolute;
       width: 10px;
       height: 10px;
-      top: 7px;
-      left: 7px;
       box-shadow: 0 0 0 8px ${marker.color[1]};
       border-radius: 50%;
       border: 2px solid #fff;
@@ -149,8 +147,8 @@ export class Map {
     `;
     const icon = L.divIcon({
       className: 'marker-icon',
-      iconAnchor: [0, 24],
-      popupAnchor: [0, -36],
+      iconAnchor: [7, 7],
+      popupAnchor: [0, 0],
       html: `
         <span style="${markerHtmlStyles}" />
       `,
