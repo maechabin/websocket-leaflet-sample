@@ -62,11 +62,15 @@ export class Map {
       .addLayer(streetsLayer);
 
     L.control
-      .layers({
-        street: streetsLayer,
-        satellite: satelliteLayer,
-        'google maps': googlemaps,
-      })
+      .layers(
+        {
+          street: streetsLayer,
+          satellite: satelliteLayer,
+          'google maps': googlemaps,
+        },
+        {},
+        { position: 'bottomright' },
+      )
       .addTo(this.llmap);
   }
 
